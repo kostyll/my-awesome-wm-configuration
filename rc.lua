@@ -1,3 +1,5 @@
+-- TODO: xrandr --output CRT1 --auto --left-of CRT2 - run at start!!!!
+
 -- require("volume")
 -- Standard awesome library
 require("awful")
@@ -237,34 +239,6 @@ globalkeys = awful.util.table.join(
             end
         end),
 
-    -- Screen manipulation
-    awful.key({ modkey, }, "F1",
-              function ()
-                awful.screen.focus(1)
-                naughty.notify({
-                     -- preset = naughty.config.presets.critical,
-                     title = "Switched fo scr 1",
-                     text = "Switched fo screen 1",
-                     timeout = 5, })
-              end),
-    awful.key({ modkey, }, "F2",
-              function ()
-                awful.screen.focus(2)
-                -- naughty.notify({
-                --   title      = "Battery Warning"
-                --   , text       = "Battery low! left!"
-                --   , fg="#ff0000"
-                --   , bg="#deb887"
-                --   , timeout    = 15
-                --   , position   = "bottom_left"
-                -- })
-                naughty.notify({
-                     -- preset = naughty.config.presets.critical,
-                     title = "Switched fo scr 2",
-                     text = "Switched fo screen 2",
-                     timeout = 5, })
-              end),
-
     -- Standard program<
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
     awful.key({ modkey, "Shift"   }, "Return", function () awful.util.spawn("uxterm") end),
@@ -421,6 +395,24 @@ if awesome.startup_errors then
                      text = awesome.startup_errors })
 end
 
+-- Screen manipulation
+
+-- screens = screen.count()
+-- screens = math.min(12,screens)
+
+-- for i = 1 to screens do
+--     globalkeys = awful.util.table.join(globalkeys,
+--         awful.key({ modkey }, "#" .. "F"..i,
+--                   function ()
+--                       awful.screen.focus(i)
+--                       naughty.notify({
+--                       -- preset = naughty.config.presets.critical,
+--                       title = "Switched fo scr "..i,
+--                       text = "Switched fo screen "..i,
+--                       timeout = 5, })
+--                   end)
+--     )
+
 if not awesome.startup_errors then
   naughty.notify({
                  title = "Load|Reload is successfull!",
@@ -428,4 +420,26 @@ if not awesome.startup_errors then
                  timeout = 5,
                  -- position="center_center",
                  })
+end
+
+if awesome.startup_errors then
+  naughty.notify({ preset = naughty.config.presets.critical,
+                title = "Oops, there were errors during startup!",
+                text = awesome.startup_errors })
+end
+
+-- Handle runtime errors after startup
+do
+  local in_error = false
+  awesome.add_signal("debug::error",
+    function (err)
+      -- Make sure we don't go into an endless error loop
+      if in_error then return end
+      in_error = true
+      naughty.notify({ preset = naughty.config.presets.critical,
+                title = "Oops, an error happened!",
+                text = err })
+
+      in_error = false
+    end)
 end
