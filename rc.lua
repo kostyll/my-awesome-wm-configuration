@@ -15,6 +15,8 @@ require("debian.menu")
 
 require("awful.remote")
 
+local lain = require("lain")
+
 -- os.execute("/bin/bash /home/andrew/mscripts/explore_monitors.sh")
 
 -- {{{ Error handling
@@ -59,9 +61,20 @@ editor_cmd = terminal .. " -e " .. editor
 modkey = "Mod4"
 
 -- Table of layouts to cover with awful.layout.inc, order matters.
+
+theme.lain_icons         = os.getenv("HOME") .. "/.config/awesome/lain/icons/layout/default/"
+theme.layout_termfair    = theme.lain_icons .. "termfairw.png"
+theme.layout_cascade     = theme.lain_icons .. "cascadew.png"
+theme.layout_cascadetile = theme.lain_icons .. "cascadetilew.png"
+theme.layout_centerwork  = theme.lain_icons .. "centerworkw.png"
+
 layouts =
 {
     awful.layout.suit.floating,
+    lain.layout.termfair,
+    lain.layout.centerfair,
+    lain.layout.centerwork,
+    lain.layout.uselessfair,
     awful.layout.suit.tile,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
@@ -333,10 +346,6 @@ clientbuttons = awful.util.table.join(
     awful.button({ modkey }, 1, awful.mouse.client.move),
     awful.button({ modkey }, 3, awful.mouse.client.resize))
 
--- Set keys
-root.keys(globalkeys)
--- }}}
-
 -- {{{ Rules
 awful.rules.rules = {
     -- All clients will match this rule.
@@ -389,29 +398,83 @@ client.add_signal("focus", function(c) c.border_color = beautiful.border_focus e
 client.add_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
-if awesome.startup_errors then
-  naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
-end
+-- if awesome.startup_errors then
+--   naughty.notify({ preset = naughty.config.presets.critical,
+--                      title = "Oops, there were errors during startup!",
+--                      text = awesome.startup_errors })
+-- end
 
 -- Screen manipulation
 
--- screens = screen.count()
--- screens = math.min(12,screens)
+screens = screen.count()
+screens = math.min(12,screens)
 
--- for i = 1 to screens do
---     globalkeys = awful.util.table.join(globalkeys,
---         awful.key({ modkey }, "#" .. "F"..i,
---                   function ()
---                       awful.screen.focus(i)
---                       naughty.notify({
---                       -- preset = naughty.config.presets.critical,
---                       title = "Switched fo scr "..i,
---                       text = "Switched fo screen "..i,
---                       timeout = 5, })
---                   end)
---     )
+naughty.notify({
+                 title = "Screens exploring",
+                 text = "There was fount "..screens.." screens",
+                 timeout = 5,
+                 -- position="center_center",
+                 })
+
+for i = 1,screens,1 do
+    globalkeys = awful.util.table.join(globalkeys,
+        awful.key({ modkey }, "F"..i,
+                  function ()
+                      awful.screen.focus(i)
+                      naughty.notify({
+                        -- preset = naughty.config.presets.critical,
+                        title = "Switched fo scr "..i,
+                        text = "Switched fo screen "..i,
+                        timeout = 5, })
+                  end)
+    )
+end
+
+-- Set keys
+root.keys(globalkeys)
+-- }}}
+
+-- Create a textbox
+mytextbox = widget({ type = "textbox", name = "mytextbox" })
+-- Set text of the textbox
+mytextbox.text = "Hello, world!"
+-- Create a statusbar
+mystatusbar = awful.wibox({ position = "bottom", name = "mystatusbar" })
+-- Add widgets to the statusbar
+mystatusbar.widgets = { mytextbox }
+-- Add the statusbar on screen #1
+mystatusbar.screen = 1
+
+-- if awesome.startup_errors then
+--   naughty.notify({ preset = naughty.config.presets.critical,
+--                 title = "Oops, there were errors during startup!",
+--                 text = awesome.startup_errors })
+-- end
+
+-- Handle runtime errors after startup
+-- do
+--   local in_error = false
+--   awesome.add_signal("debug::error",
+--     function (err)
+--       -- Make sure we don't go into an endless error loop
+--       if in_error then return end
+--       in_error = true
+--       naughty.notify({ preset = naughty.config.presets.critical,
+--                 title = "Oops, an error happened!",
+--                 text = err })
+
+--       in_error = false
+--     end)
+-- end
+
+-- memwidget = widget({
+--     type = 'textbox',
+--     name = 'memwidget',
+--     position = "bottom"
+-- })
+
+-- wicked.register(memwidget, wicked.widgets.mem,
+--     ' <span color="white">Memory:</span> $1 ($2Mb/$3Mb)')
 
 if not awesome.startup_errors then
   naughty.notify({
@@ -420,26 +483,4 @@ if not awesome.startup_errors then
                  timeout = 5,
                  -- position="center_center",
                  })
-end
-
-if awesome.startup_errors then
-  naughty.notify({ preset = naughty.config.presets.critical,
-                title = "Oops, there were errors during startup!",
-                text = awesome.startup_errors })
-end
-
--- Handle runtime errors after startup
-do
-  local in_error = false
-  awesome.add_signal("debug::error",
-    function (err)
-      -- Make sure we don't go into an endless error loop
-      if in_error then return end
-      in_error = true
-      naughty.notify({ preset = naughty.config.presets.critical,
-                title = "Oops, an error happened!",
-                text = err })
-
-      in_error = false
-    end)
 end
